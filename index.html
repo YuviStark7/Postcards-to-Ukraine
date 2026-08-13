@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A letter to my friends in Ukraine</title>
+<meta name="description" content="A digital postcard.">
+<meta name="theme-color" content="#0b1233">
+
+<meta property="og:title" content="A letter to my friends in Ukraine">
+<meta property="og:description" content="Привіт — тобі лист.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="images/c1.webp">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23dcc575'/><path d='M18 34h64v34H18z' fill='none' stroke='%2320388f' stroke-width='7'/><path d='M18 34l32 24 32-24' fill='none' stroke='%2320388f' stroke-width='7'/></svg>">
+
+<link rel="stylesheet" href="style.css">
+<noscript><style>
+  .hello-ink{clip-path:none !important}
+  .hello-sub{opacity:1 !important;transform:none !important}
+  .hello-sub::after{content:" — this postcard needs JavaScript turned on";display:block;font-size:.6em}
+</style></noscript>
+</head>
+
+<body data-stage="loading">
+
+<div class="bg" aria-hidden="true"><span class="glow"></span><span class="grain"></span></div>
+
+<!-- ── sound toggle ─────────────────────────────────────────── -->
+<button id="sound" class="sound" aria-pressed="false" aria-label="Turn sound on" title="Sound">
+  <svg viewBox="0 0 24 24" class="ic-on"  aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" class="w1"/><path d="M19 6a8.5 8.5 0 0 1 0 12" class="w2"/></svg>
+  <svg viewBox="0 0 24 24" class="ic-off" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
+</button>
+
+<main class="stage" id="stage">
+
+  <!-- ── 1. greeting ────────────────────────────────────────── -->
+  <section class="greeting" id="greeting" aria-label="Greeting">
+    <div class="hello-wrap">
+      <h1 class="hello" id="hello"><span class="hello-ink">Привіт!</span></h1>
+      <p class="hello-sub" id="helloSub">тобі лист</p>
+    </div>
+  </section>
+
+  <!-- ── 2. envelope + cards ────────────────────────────────── -->
+  <section class="scene" id="scene">
+
+    <div class="env-wrap" id="envWrap">
+      <button class="envelope" id="envelope" aria-label="Open the letter">
+        <span class="env-shadow"></span>
+        <span class="env-back"></span>
+        <span class="env-lining"></span>
+        <span class="env-front">
+          <img class="env-orn" src="images/ornament.webp" alt="" aria-hidden="true">
+        </span>
+        <span class="env-flap"><span class="env-flap-face"></span></span>
+        <span class="env-seal"><i>F(x)</i></span>
+      </button>
+      <p class="env-hint" id="envHint"><span class="dot"></span><span id="envHintText">click to open</span></p>
+    </div>
+
+    <div class="deck" id="deck"></div>
+
+  </section>
+
+  <!-- ── 3. controls ────────────────────────────────────────── -->
+  <nav class="controls" id="controls" aria-label="Postcard navigation">
+    <button class="btn btn-back" id="back" aria-label="Previous card">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>back</span>
+    </button>
+    <div class="pips" id="pips" aria-hidden="true"></div>
+    <div class="right-slot">
+      <button class="btn btn-next" id="next" aria-label="Next card">
+        <span>next</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn btn-skip hide" id="skip" aria-label="Finish the writing now">
+        <span>skip</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5l7 7-7 7M15 5v14"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── 4. finale prompt ───────────────────────────────────── -->
+  <div class="finale" id="finale" hidden>
+    <p>click anywhere to put them back</p>
+  </div>
+
+</main>
+
+<!-- rotate nudge for portrait phones -->
+<div class="rotate" id="rotate" hidden>
+  <div class="rotate-card">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="20" y="6" width="24" height="42" rx="4"/>
+      <path d="M14 54a24 24 0 0 0 36 0" class="arc"/><path d="M50 46v9h-9" class="arc"/>
+    </svg>
+    <p>Turn your phone sideways<br><small>the letters are wide</small></p>
+    <button id="rotateSkip">read it anyway</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

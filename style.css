@@ -1,0 +1,367 @@
+/* ─────────────────────────────────────────────────────────────
+   A letter to my friends in Ukraine — digital postcard
+   ───────────────────────────────────────────────────────────── */
+
+/* ── self-hosted fonts (no CDN, works offline and from file://) ── */
+@font-face{font-family:'Caveat';font-style:normal;font-weight:500;font-display:swap;
+  src:url('fonts/caveat-cyrillic-500-normal.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:500;font-display:swap;
+  src:url('fonts/caveat-latin-500-normal.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:700;font-display:swap;
+  src:url('fonts/caveat-cyrillic-700-normal.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:700;font-display:swap;
+  src:url('fonts/caveat-latin-700-normal.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:500;font-display:swap;
+  src:url('fonts/quicksand-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:600;font-display:swap;
+  src:url('fonts/quicksand-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:700;font-display:swap;
+  src:url('fonts/quicksand-latin-700-normal.woff2') format('woff2')}
+
+:root{
+  --paper:#dcc575;
+  --paper-lo:#cdb768;
+  --ink:#20388f;
+  --ink-lo:#16296d;
+  --matte:#aca578;
+  --bg-1:#0a1030;
+  --bg-2:#151d46;
+  --bg-3:#241f3d;
+  --cream:#f4e7c4;
+
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+
+  --pad-v:152px;                       /* vertical room taken by the chrome */
+  --cw: min(94vw, 1080px, calc((100svh - var(--pad-v)) * 1.3238));
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Quicksand',ui-rounded,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg-1);
+  color:var(--cream);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── backdrop ────────────────────────────────────────────── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 108%, var(--bg-3) 0%, transparent 62%),
+    linear-gradient(168deg, var(--bg-1) 0%, var(--bg-2) 58%, #0c1130 100%);
+}
+.bg .glow{position:absolute;left:50%;top:46%;width:min(150vmax,1500px);aspect-ratio:1;
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle, rgba(220,197,117,.16) 0%, rgba(220,197,117,.05) 34%, transparent 62%);
+  animation:breathe 15s var(--ease-in-out) infinite}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}
+  50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}}
+.bg .grain{position:absolute;inset:-200%;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── stage ───────────────────────────────────────────────── */
+.stage{position:relative;z-index:1;height:100svh;display:grid;place-items:center}
+
+/* ── 1. greeting ─────────────────────────────────────────── */
+.greeting{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  transition:opacity .7s var(--ease-out), transform .9s var(--ease-out);padding:24px}
+.hello{margin:0;font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(64px,15vw,168px);line-height:1;color:var(--paper);
+  letter-spacing:.01em;text-shadow:0 6px 40px rgba(220,197,117,.25)}
+.hello-ink{display:inline-block;clip-path:inset(0 100% -30% 0);
+  will-change:clip-path;padding:0 .06em}
+.hello-sub{margin:.5em 0 0;font-family:'Caveat',cursive;
+  font-size:clamp(20px,3.6vw,34px);color:rgba(244,231,196,.62);
+  opacity:0;transform:translateY(8px);transition:opacity .8s ease .15s, transform .8s var(--ease-out) .15s}
+.hello-sub.on{opacity:1;transform:none}
+body[data-stage="greeting-out"] .greeting,
+body:not([data-stage="loading"]):not([data-stage="greeting"]):not([data-stage="greeting-out"]) .greeting{
+  opacity:0;transform:translateY(-26px) scale(.96);pointer-events:none}
+
+/* ── 2. scene ────────────────────────────────────────────── */
+.scene{position:absolute;inset:0;display:grid;place-items:center}
+
+/* ── envelope ────────────────────────────────────────────── */
+.env-wrap{position:absolute;display:grid;place-items:center;gap:0;
+  opacity:0;pointer-events:none;transition:opacity .4s ease}
+body[data-stage="envelope"] .env-wrap,
+body[data-stage="closing"] .env-wrap{opacity:1;pointer-events:auto}
+body[data-stage="opening"] .env-wrap,
+body[data-stage="gather"] .env-wrap{opacity:1;pointer-events:none}
+/* once the cards are out the envelope bows out, so no flap pokes over the card */
+body[data-stage="cards"] .env-wrap{opacity:0;pointer-events:none;
+  transition:opacity .55s ease .3s}
+
+.envelope{
+  --ew: min(74vw, 430px);
+  position:relative;width:var(--ew);aspect-ratio:1.5;
+  border:0;padding:0;background:none;cursor:pointer;display:block;
+  transform-style:preserve-3d;perspective:900px;
+  transition:transform .5s var(--spring), filter .4s ease;
+}
+body.first[data-stage="envelope"] .envelope{animation:envPop .95s var(--spring) both}
+@keyframes envPop{
+  0%{transform:translateY(58px) scale(.42) rotate(-9deg);opacity:0}
+  55%{opacity:1}
+  62%{transform:translateY(-14px) scale(1.05) rotate(2.5deg)}
+  100%{transform:none;opacity:1}
+}
+body[data-stage="envelope"] .envelope:hover{transform:translateY(-8px) scale(1.035) rotate(-.6deg)}
+body[data-stage="envelope"] .envelope:active{transform:translateY(-2px) scale(.99)}
+.envelope:focus-visible{outline:3px solid rgba(244,231,196,.6);outline-offset:14px;border-radius:8px}
+
+.envelope > span:not(.env-seal){position:absolute;inset:0}
+.env-shadow{inset:auto 6% -7% 6%;height:26px;border-radius:50%;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.5), transparent 70%);filter:blur(7px)}
+.env-back{background:linear-gradient(178deg,var(--paper) 0%, var(--paper-lo) 100%);
+  border-radius:6px;box-shadow:0 26px 60px -18px rgba(0,0,0,.65), inset 0 0 0 1px rgba(0,0,0,.06)}
+.env-lining{background:linear-gradient(180deg,#b9a55c,#c6b268);border-radius:6px;
+  clip-path:polygon(0 0,100% 0,50% 52%)}
+
+.env-front{
+  background:linear-gradient(172deg,#e2cc7e 0%, var(--paper) 42%, #d2bb6b 100%);
+  border-radius:6px;overflow:hidden;z-index:3;
+  clip-path:polygon(0 100%,0 6%,50% 56%,100% 6%,100% 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
+.env-front::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 46%,rgba(255,255,255,.22) 50%,transparent 54%)}
+.env-orn{position:absolute;right:-14%;bottom:-26%;width:56%;opacity:.9;
+  transform:rotate(0deg);pointer-events:none}
+.env-seal{position:absolute;inset:auto;left:50%;top:56%;
+  transform:translate(-50%,-50%);
+  width:23%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  z-index:5;transition:transform .5s var(--ease-out), opacity .35s ease;
+  background:radial-gradient(circle at 34% 30%, #35529f, var(--ink) 46%, var(--ink-lo) 100%);
+  box-shadow:0 4px 12px rgba(0,0,0,.34), inset 0 -2px 6px rgba(0,0,0,.4), inset 0 2px 5px rgba(255,255,255,.28)}
+.env-seal::after{content:"";position:absolute;inset:8%;border-radius:50%;
+  border:1px dashed rgba(244,231,196,.42)}
+.env-seal i{font-family:'Caveat',cursive;font-style:normal;font-weight:700;
+  font-size:clamp(13px,3.4vw,22px);color:var(--cream);letter-spacing:.02em;
+  transform:translateY(-1px)}
+/* the seal breaks and drops away as the flap lifts */
+body:not([data-stage="envelope"]):not([data-stage="closing"]) .env-seal{
+  transform:translate(-50%,26%) rotate(-14deg) scale(.9);opacity:0}
+
+.env-flap{transform-origin:top center;transform-style:preserve-3d;z-index:4;
+  transition:transform .78s var(--ease-in-out), z-index 0s linear .34s}
+.env-flap-face{position:absolute;inset:0;
+  background:linear-gradient(180deg,#e5d086,#d3bc6c);
+  clip-path:polygon(0 6%,50% 56%,100% 6%,100% 0,0 0);
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.22))}
+body[data-stage="opening"] .env-flap,
+body[data-stage="cards"] .env-flap,
+body[data-stage="gather"] .env-flap{transform:rotateX(-168deg);z-index:1;
+  transition:transform .78s var(--ease-in-out), z-index 0s linear .3s}
+
+.env-hint{margin:26px 0 0;font-size:clamp(14px,1.6vw,17px);font-weight:600;
+  letter-spacing:.16em;text-transform:lowercase;color:rgba(244,231,196,.74);
+  display:flex;align-items:center;gap:10px;transition:opacity .5s ease .2s}
+body.first .env-hint{animation:hintIn .7s ease .9s both}
+@keyframes hintIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.env-hint .dot{width:7px;height:7px;border-radius:50%;background:var(--paper);
+  box-shadow:0 0 0 0 rgba(220,197,117,.6);animation:pulse 2.1s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(220,197,117,.55)}
+  70%{box-shadow:0 0 0 13px rgba(220,197,117,0)}100%{box-shadow:0 0 0 0 rgba(220,197,117,0)}}
+body:not([data-stage="envelope"]) .env-hint{opacity:0;transition:opacity .3s ease}
+
+/* ── deck + cards ────────────────────────────────────────── */
+.deck{position:absolute;width:var(--cw);aspect-ratio:1067/806;
+  perspective:1500px;perspective-origin:50% 46%;
+  transform:translateY(-14px);pointer-events:none}
+body[data-stage="cards"] .deck,
+body[data-stage="gather"] .deck{pointer-events:auto}
+
+.card{position:absolute;inset:0;transform-origin:50% 50%;
+  transition:transform .72s var(--ease-out), opacity .5s ease, filter .5s ease;
+  will-change:transform,opacity;pointer-events:none}
+/* only the card on top may be hovered / clicked — invisible ones still have boxes */
+.card.st-active{pointer-events:auto}
+.card-inner{position:absolute;inset:0;
+  filter:drop-shadow(0 22px 34px rgba(0,0,0,.42)) drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+.card img.sheet{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+
+/* stack states */
+.card{opacity:0;transform:translate3d(0,60px,-460px) rotate(4deg) scale(.9)}
+/* going in: stay visible for the trip, vanish only once inside the pocket */
+.card.st-in-envelope{opacity:0;transform:var(--tf-env);
+  transition:transform .8s var(--ease-in-out), opacity .26s ease .5s}
+.card.st-behind{opacity:1;
+  transform:translate3d(calc(var(--i) * 9px), calc(var(--i) * 13px), calc(var(--i) * -46px))
+            rotate(calc(var(--i) * 1.35deg)) scale(calc(1 - var(--i) * .022));
+  filter:brightness(.9) saturate(.94)}
+.card.st-behind .card-inner{filter:drop-shadow(0 14px 22px rgba(0,0,0,.4))}
+.card.st-active{opacity:1;transform:none;z-index:60}
+.card.st-past{opacity:0;transform:translate3d(-72%,-16%,220px) rotate(-15deg) scale(1.06)}
+.card.st-deep{opacity:0;transform:translate3d(0,42px,-520px) scale(.86)}
+
+/* handwriting reveal */
+.ln{position:absolute;overflow:hidden;background-repeat:no-repeat;
+  clip-path:inset(0 100% 0 0);will-change:clip-path;pointer-events:none}
+
+.pen{position:absolute;width:2.2%;aspect-ratio:1;left:0;top:0;
+  transform:translate(-30%,-58%);opacity:0;pointer-events:none;z-index:5;
+  transition:opacity .18s ease}
+.pen.on{opacity:1}
+.pen span{position:absolute;inset:0;border-radius:50% 50% 50% 12%;
+  background:radial-gradient(circle at 34% 30%, #4a63c9, var(--ink) 60%, var(--ink-lo));
+  transform:rotate(-38deg);
+  box-shadow:0 0 14px rgba(46,72,190,.65), 0 2px 5px rgba(0,0,0,.3)}
+.pen::after{content:"";position:absolute;left:-70%;top:-70%;width:240%;height:240%;
+  border-radius:50%;background:radial-gradient(circle, rgba(64,92,220,.3), transparent 62%)}
+
+/* ── photo card (tilt + chibi swap) ──────────────────────── */
+.card.is-photo .card-inner{filter:drop-shadow(0 26px 40px rgba(0,0,0,.5))}
+.tilt{position:absolute;inset:0;transform-style:preserve-3d;
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(var(--ts,1));
+  border-radius:5px;overflow:hidden;cursor:crosshair;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.tilt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;-webkit-user-drag:none;backface-visibility:hidden}
+.tilt .im-chibi{clip-path:inset(0 100% 0 0);
+  transition:clip-path .52s var(--ease-out)}
+.card.chibi-on .tilt .im-chibi{clip-path:inset(0 0 0 0)}
+/* a soft glare plus a whisper of rainbow — enough to feel like a print
+   catching the light, never enough to recolour anyone's face */
+.tilt .shine{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
+  opacity:calc(var(--shine,0) * .5);transition:opacity .35s ease;
+  background:radial-gradient(farthest-corner circle at var(--px,50%) var(--py,50%),
+      rgba(255,252,240,.5) 0%, rgba(255,244,215,.16) 18%, transparent 46%)}
+.tilt .holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;
+  opacity:calc(var(--shine,0) * .17);transition:opacity .35s ease;
+  background:conic-gradient(from calc(var(--pxn,.5) * 320deg) at 50% 50%,
+      #ff78b4, #78c8ff, #beffaa, #ffdc78, #ff78b4)}
+.tilt .edge{position:absolute;inset:0;pointer-events:none;border-radius:5px;
+  box-shadow:inset 0 0 34px rgba(0,0,0,.28)}
+.swap-hint{position:absolute;left:50%;bottom:-42px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;white-space:nowrap;
+  font-size:clamp(11px,1.35vw,14px);font-weight:600;letter-spacing:.1em;
+  color:rgba(244,231,196,.6);pointer-events:none;opacity:0;transition:opacity .5s ease .2s}
+.card.st-active .swap-hint{opacity:1}
+.swap-hint b{color:var(--paper);font-weight:700}
+.swap-hint i{font-style:normal;opacity:.4}
+
+/* ── controls ────────────────────────────────────────────── */
+.controls{position:absolute;left:50%;bottom:max(22px, env(safe-area-inset-bottom));
+  transform:translateX(-50%);display:flex;align-items:center;gap:clamp(14px,3vw,34px);
+  opacity:0;pointer-events:none;transition:opacity .45s ease}
+body[data-stage="cards"] .controls{opacity:1;pointer-events:auto}
+.btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;
+  padding:11px 20px;border-radius:999px;font:inherit;font-weight:700;
+  font-size:clamp(13px,1.5vw,15px);letter-spacing:.12em;text-transform:lowercase;
+  color:var(--bg-1);background:linear-gradient(178deg,#e8d38a,var(--paper));
+  box-shadow:0 8px 22px -8px rgba(220,197,117,.6), inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .28s var(--spring), box-shadow .28s ease, opacity .28s ease, background .28s ease}
+.btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round}
+.btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 12px 28px -8px rgba(220,197,117,.75)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+.btn-back{background:none;color:rgba(244,231,196,.7);box-shadow:none;
+  border:1.5px solid rgba(244,231,196,.24)}
+.btn-back:hover{color:var(--cream);border-color:rgba(244,231,196,.5);box-shadow:none}
+.btn[disabled],.btn.hide{opacity:0;pointer-events:none;transform:scale(.9)}
+
+.right-slot{position:relative;display:grid;place-items:center;min-width:112px}
+.right-slot .btn{grid-area:1/1}
+.btn-skip{background:none;color:rgba(244,231,196,.62);box-shadow:none;
+  border:1.5px solid rgba(244,231,196,.2)}
+.btn-skip:hover{color:var(--cream);border-color:rgba(244,231,196,.45);box-shadow:none}
+.btn-skip svg{stroke-width:2.1}
+
+.pips{display:flex;gap:9px;align-items:center}
+.pips i{width:7px;height:7px;border-radius:50%;background:rgba(244,231,196,.24);
+  transition:all .4s var(--spring)}
+.pips i.on{background:var(--paper);transform:scale(1.35);
+  box-shadow:0 0 12px rgba(220,197,117,.7)}
+.pips i.seen{background:rgba(220,197,117,.55)}
+
+/* ── finale ──────────────────────────────────────────────── */
+.finale[hidden]{display:none}
+/* sits on the same line as the buttons — the pips step aside for it */
+.finale{position:absolute;inset:0;z-index:80;display:grid;place-items:end center;
+  padding-bottom:max(24px, env(safe-area-inset-bottom));cursor:pointer}
+.finale p{margin:0;font-family:'Caveat',cursive;font-size:clamp(21px,2.6vw,29px);
+  line-height:1.4;color:rgba(244,231,196,.82);animation:floaty 2.6s ease-in-out infinite}
+/* the prompt takes the middle, so back steps aside to the edge */
+body.finale-on .pips{display:none}
+body.finale-on .controls{width:min(94vw,1080px);justify-content:space-between}
+@keyframes floaty{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(-7px);opacity:1}}
+
+/* ── sound toggle ────────────────────────────────────────── */
+.sound{position:fixed;top:max(16px, env(safe-area-inset-top));right:16px;z-index:120;
+  width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(244,231,196,.2);
+  background:rgba(255,255,255,.045);backdrop-filter:blur(8px);cursor:pointer;
+  display:grid;place-items:center;color:rgba(244,231,196,.62);
+  transition:all .3s var(--ease-out)}
+.sound:hover{color:var(--cream);border-color:rgba(244,231,196,.45);transform:scale(1.07)}
+.sound svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.sound svg path:first-child{fill:currentColor;stroke-width:1.4}
+.sound .ic-on{display:none}
+.sound[aria-pressed="true"]{color:var(--paper);border-color:rgba(220,197,117,.45)}
+.sound[aria-pressed="true"] .ic-on{display:block}
+.sound[aria-pressed="true"] .ic-off{display:none}
+.sound .w1{opacity:.9}.sound .w2{opacity:.55}
+
+/* ── rotate nudge ────────────────────────────────────────── */
+.rotate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:rgba(8,12,36,.975);backdrop-filter:blur(10px);padding:28px;text-align:center}
+.rotate[hidden]{display:none}
+.rotate-card svg{width:74px;height:74px;fill:none;stroke:var(--paper);stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round;animation:tilt 2.4s ease-in-out infinite}
+.rotate-card svg rect{fill:rgba(220,197,117,.1)}
+.rotate-card .arc{opacity:.65}
+@keyframes tilt{0%,55%,100%{transform:rotate(0)}75%,90%{transform:rotate(-88deg)}}
+.rotate-card p{font-family:'Caveat',cursive;font-size:30px;margin:18px 0 22px;color:var(--cream)}
+.rotate-card small{font-family:'Quicksand',sans-serif;font-size:13px;
+  letter-spacing:.1em;color:rgba(244,231,196,.5)}
+.rotate-card button{font:inherit;font-size:13px;font-weight:700;letter-spacing:.12em;
+  padding:11px 22px;border-radius:999px;cursor:pointer;color:rgba(244,231,196,.75);
+  background:none;border:1.5px solid rgba(244,231,196,.25)}
+.rotate-card button:hover{color:var(--cream);border-color:rgba(244,231,196,.55)}
+
+/* ── responsive ──────────────────────────────────────────── */
+@media (max-width:760px){
+  :root{--pad-v:132px}
+  .controls{gap:14px}
+  .btn{padding:10px 16px}
+  .swap-hint{bottom:-32px;gap:8px;letter-spacing:.06em}
+  .env-hint{margin-top:20px}
+}
+
+/* landscape phones: reclaim every pixel of height for the card */
+@media (max-height:600px){
+  :root{--pad-v:18px}
+  .stage{align-items:center}
+  .envelope{--ew:min(46vw,300px)}
+  .tip{display:none}
+  .deck{transform:none}
+  .controls{left:0;right:0;bottom:6px;width:100%;transform:none;
+    justify-content:space-between;padding:0 10px;pointer-events:none}
+  body[data-stage="cards"] .controls > *{pointer-events:auto}
+  .controls .pips{display:none}     /* the card fills the screen — nowhere to put them */
+  .btn{padding:8px 14px;font-size:12px;
+    box-shadow:0 6px 18px -8px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.5)}
+  .swap-hint{bottom:6px;background:rgba(10,16,48,.55);backdrop-filter:blur(4px);
+    padding:5px 12px;border-radius:999px;font-size:10px}
+  .finale{padding-bottom:34px}
+  .finale p{font-size:22px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.12s !important}
+  .bg .glow{animation:none}
+}
