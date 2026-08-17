@@ -185,7 +185,8 @@ function buildTextCard(n){
   });
 
   const pen = document.createElement('div');
-  pen.className = 'pen'; pen.innerHTML = '<span></span>';
+  pen.className = 'pen';
+  pen.innerHTML = '<img src="images/vodka.webp" alt="" draggable="false">';
   inner.appendChild(pen);
 
   return { el, kind:'text', meta, lineEls, pen, written:false };
@@ -200,12 +201,9 @@ function buildPhotoCard(){
         <img class="im-chibi" src="images/chibi.webp" alt="The same photo, drawn as chibi characters" draggable="false">
         <div class="shine"></div><div class="holo"></div><div class="edge"></div>
       </div>
-      <p class="swap-hint">
-        <b>←</b> ${TOUCH ? 'tap left' : 'move left'} for the drawing
-        <i>·</i>
-        ${TOUCH ? 'tap right' : 'move right'} for the real one <b>→</b>
-      </p>
-    </div>`;
+    </div>
+    <p class="swap-hint sh-left"><b>←</b> ${TOUCH ? 'tap' : 'move'} left<br><span>the drawing</span></p>
+    <p class="swap-hint sh-right">${TOUCH ? 'tap' : 'move'} right <b>→</b><br><span>the real one</span></p>`;
   const card = { el, kind:'photo', written:true };
   setupTilt(card);
   return card;
@@ -275,16 +273,21 @@ function setupTilt(card){
 }
 
 /* ══ handwriting engine ═════════════════════════════════════ */
-const SPEED = 2500;      /* px of ink per second, measured on the native 1067px card */
-const MIN_LINE = 300;    /* even a short line should read as written, not snapped */
-const MAX_LINE = 620;
+/* PACE is the one dial worth touching: higher = slower, calmer writing.
+   1 is brisk, 2.5 is an unhurried hand. Everything below scales off it. */
+const PACE = 2.5;
+const SPEED    = 2500 / PACE;   /* px of ink per second on the native 1067px card */
+const MIN_LINE = 300  * PACE;   /* even a short line should read as written */
+const MAX_LINE = 620  * PACE;
+const GAP      = 70   * Math.sqrt(PACE);   /* breath between lines */
+const PARA     = 290  * Math.sqrt(PACE);   /* longer pause where he left a blank line */
 
 function schedule(meta){
   const gaps = meta.map(m => m.gap).filter(g => g > 0).sort((a, b) => a - b);
   const median = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 40;
   let t = 140, out = [];
   meta.forEach((L, i) => {
-    if (i > 0) t += (L.gap > median * 1.7) ? 290 : 70;
+    if (i > 0) t += (L.gap > median * 1.7) ? PARA : GAP;
     const dur = Math.min(MAX_LINE, Math.max(MIN_LINE, (L.len / SPEED) * 1000));
     out.push({ start: t, dur });
     t += dur;
@@ -340,7 +343,7 @@ function writeCard(card){
       const e = 1 - Math.pow(1 - p, 1.35);
       card.pen.classList.add('on');
       card.pen.style.left = ((L.x + L.w * e) * 100).toFixed(2) + '%';
-      card.pen.style.top  = ((L.y + L.h * 0.74) * 100).toFixed(2) + '%';
+      card.pen.style.top  = ((L.y + L.h * 0.84) * 100).toFixed(2) + '%';
     } else {
       card.pen.classList.remove('on');
     }
@@ -597,7 +600,7 @@ function init(){
 
   const assets = [];
   SEQ.forEach(s => { if (s.kind === 'text') assets.push(`images/c${s.n}.webp`, `images/c${s.n}-base.webp`); });
-  assets.push('images/photo.webp', 'images/chibi.webp', 'images/ornament.webp');
+  assets.push('images/photo.webp', 'images/chibi.webp', 'images/ornament.webp', 'images/vodka.webp');
 
   const ready = Promise.race([
     preload(assets),

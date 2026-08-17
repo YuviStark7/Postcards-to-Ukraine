@@ -140,15 +140,15 @@ body[data-stage="envelope"] .envelope:active{transform:translateY(-2px) scale(.9
   transform:rotate(0deg);pointer-events:none}
 .env-seal{position:absolute;inset:auto;left:50%;top:56%;
   transform:translate(-50%,-50%);
-  width:23%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  width:26%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
   z-index:5;transition:transform .5s var(--ease-out), opacity .35s ease;
   background:radial-gradient(circle at 34% 30%, #35529f, var(--ink) 46%, var(--ink-lo) 100%);
   box-shadow:0 4px 12px rgba(0,0,0,.34), inset 0 -2px 6px rgba(0,0,0,.4), inset 0 2px 5px rgba(255,255,255,.28)}
 .env-seal::after{content:"";position:absolute;inset:8%;border-radius:50%;
   border:1px dashed rgba(244,231,196,.42)}
 .env-seal i{font-family:'Caveat',cursive;font-style:normal;font-weight:700;
-  font-size:clamp(13px,3.4vw,22px);color:var(--cream);letter-spacing:.02em;
-  transform:translateY(-1px)}
+  font-size:clamp(11px,2.9vw,20px);color:var(--cream);letter-spacing:.01em;
+  transform:translateY(-1px);white-space:nowrap}
 /* the seal breaks and drops away as the flap lifts */
 body:not([data-stage="envelope"]):not([data-stage="closing"]) .env-seal{
   transform:translate(-50%,26%) rotate(-14deg) scale(.9);opacity:0}
@@ -210,16 +210,23 @@ body[data-stage="gather"] .deck{pointer-events:auto}
 .ln{position:absolute;overflow:hidden;background-repeat:no-repeat;
   clip-path:inset(0 100% 0 0);will-change:clip-path;pointer-events:none}
 
-.pen{position:absolute;width:2.2%;aspect-ratio:1;left:0;top:0;
-  transform:translate(-30%,-58%);opacity:0;pointer-events:none;z-index:5;
-  transition:opacity .18s ease}
+/* the bottle does the writing — its base rides the edge of the ink */
+.pen{position:absolute;width:3.1%;left:0;top:0;
+  transform-origin:50% 100%;
+  transform:translate(-50%,-100%) rotate(14deg);
+  opacity:0;pointer-events:none;z-index:5;
+  transition:opacity .22s ease}
 .pen.on{opacity:1}
-.pen span{position:absolute;inset:0;border-radius:50% 50% 50% 12%;
-  background:radial-gradient(circle at 34% 30%, #4a63c9, var(--ink) 60%, var(--ink-lo));
-  transform:rotate(-38deg);
-  box-shadow:0 0 14px rgba(46,72,190,.65), 0 2px 5px rgba(0,0,0,.3)}
-.pen::after{content:"";position:absolute;left:-70%;top:-70%;width:240%;height:240%;
-  border-radius:50%;background:radial-gradient(circle, rgba(64,92,220,.3), transparent 62%)}
+.pen img{display:block;width:100%;height:auto;transform-origin:50% 100%;
+  filter:drop-shadow(0 4px 6px rgba(28,38,86,.34));
+  animation:nib 640ms ease-in-out infinite}
+@keyframes nib{
+  0%,100%{transform:rotate(-1.7deg)}
+  50%    {transform:rotate(1.7deg) translateY(-1.2%)}}
+/* wet ink where it meets the paper */
+.pen::after{content:"";position:absolute;left:50%;bottom:0;
+  width:210%;aspect-ratio:1;transform:translate(-50%,42%);border-radius:50%;
+  background:radial-gradient(circle, rgba(40,64,170,.42), rgba(40,64,170,.1) 40%, transparent 66%)}
 
 /* ── photo card (tilt + chibi swap) ──────────────────────── */
 .card.is-photo .card-inner{filter:drop-shadow(0 26px 40px rgba(0,0,0,.5))}
@@ -229,9 +236,8 @@ body[data-stage="gather"] .deck{pointer-events:auto}
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
 .tilt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   display:block;-webkit-user-drag:none;backface-visibility:hidden}
-.tilt .im-chibi{clip-path:inset(0 100% 0 0);
-  transition:clip-path .52s var(--ease-out)}
-.card.chibi-on .tilt .im-chibi{clip-path:inset(0 0 0 0)}
+.tilt .im-chibi{opacity:0;transition:opacity .5s ease}
+.card.chibi-on .tilt .im-chibi{opacity:1}
 /* a soft glare plus a whisper of rainbow — enough to feel like a print
    catching the light, never enough to recolour anyone's face */
 .tilt .shine{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
@@ -244,17 +250,39 @@ body[data-stage="gather"] .deck{pointer-events:auto}
       #ff78b4, #78c8ff, #beffaa, #ffdc78, #ff78b4)}
 .tilt .edge{position:absolute;inset:0;pointer-events:none;border-radius:5px;
   box-shadow:inset 0 0 34px rgba(0,0,0,.28)}
-.swap-hint{position:absolute;left:50%;bottom:-42px;transform:translateX(-50%);
-  display:flex;align-items:center;gap:12px;white-space:nowrap;
-  font-size:clamp(11px,1.35vw,14px);font-weight:600;letter-spacing:.1em;
-  color:rgba(244,231,196,.6);pointer-events:none;opacity:0;transition:opacity .5s ease .2s}
+/* the two hints live beside the photo (or above it on tall screens) so the
+   bottom of the card stays clear of the buttons */
+.swap-hint{position:absolute;margin:0;white-space:nowrap;line-height:1.7;
+  font-size:clamp(10px,1.15vw,13px);font-weight:600;letter-spacing:.11em;
+  color:rgba(244,231,196,.42);pointer-events:none;
+  opacity:0;transition:opacity .5s ease .25s, color .4s ease}
 .card.st-active .swap-hint{opacity:1}
-.swap-hint b{color:var(--paper);font-weight:700}
-.swap-hint i{font-style:normal;opacity:.4}
+.swap-hint b{font-weight:700;font-size:1.15em}
+.swap-hint span{opacity:.66;font-weight:500;letter-spacing:.05em}
+.card.chibi-on .sh-left,
+.card:not(.chibi-on) .sh-right{color:rgba(220,197,117,.92)}
+
+/* tall / narrow screens: one line above the card */
+.sh-left { bottom:calc(100% + 15px); right:50%; margin-right:14px; text-align:right }
+.sh-right{ bottom:calc(100% + 15px); left:50%;  margin-left:14px }
+.sh-left br, .sh-right br{display:none}
+.sh-left span, .sh-right span{margin-left:.45em}
+
+/* wide screens: tuck them into the empty space either side of the card */
+@media (min-aspect-ratio:3/2){
+  .swap-hint{top:50%;transform:translateY(-50%);bottom:auto;margin:0}
+  .sh-left { right:calc(100% + 26px); left:auto }
+  .sh-right{ left:calc(100% + 26px);  right:auto; text-align:left }
+  .sh-left br, .sh-right br{display:block}
+  .sh-left span, .sh-right span{margin-left:0}
+}
 
 /* ── controls ────────────────────────────────────────────── */
+/* z-index must beat .finale, or its full-screen click layer swallows these
+   buttons and "back" ends up putting everything away instead */
 .controls{position:absolute;left:50%;bottom:max(22px, env(safe-area-inset-bottom));
-  transform:translateX(-50%);display:flex;align-items:center;gap:clamp(14px,3vw,34px);
+  z-index:90;transform:translateX(-50%);display:flex;align-items:center;
+  gap:clamp(14px,3vw,34px);
   opacity:0;pointer-events:none;transition:opacity .45s ease}
 body[data-stage="cards"] .controls{opacity:1;pointer-events:auto}
 .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;
@@ -337,7 +365,8 @@ body.finale-on .controls{width:min(94vw,1080px);justify-content:space-between}
   :root{--pad-v:132px}
   .controls{gap:14px}
   .btn{padding:10px 16px}
-  .swap-hint{bottom:-32px;gap:8px;letter-spacing:.06em}
+  .sh-left{margin-right:9px}
+  .sh-right{margin-left:9px}
   .env-hint{margin-top:20px}
 }
 
@@ -354,8 +383,9 @@ body.finale-on .controls{width:min(94vw,1080px);justify-content:space-between}
   .controls .pips{display:none}     /* the card fills the screen — nowhere to put them */
   .btn{padding:8px 14px;font-size:12px;
     box-shadow:0 6px 18px -8px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.5)}
-  .swap-hint{bottom:6px;background:rgba(10,16,48,.55);backdrop-filter:blur(4px);
-    padding:5px 12px;border-radius:999px;font-size:10px}
+  .swap-hint{font-size:10px;letter-spacing:.07em}
+  .sh-left { right:calc(100% + 16px) }
+  .sh-right{ left:calc(100% + 16px) }
   .finale{padding-bottom:34px}
   .finale p{font-size:22px}
 }

@@ -16,7 +16,8 @@ Drop the folder into a repo, turn on GitHub Pages, send the link.
 | `style.css` | all styling and animation |
 | `app.js` | the sequence, the handwriting engine, the tilt card, the sound |
 | `data.js` | generated — where each line of text sits on each card |
-| `images/` | the postcards, cut out with their torn edges |
+| `images/` | the postcards (cut out with their torn edges) and the bottle |
+| `Vodka.png` | the original bottle art `prep.py` cuts out |
 | `fonts/` | Caveat + Quicksand, self-hosted so nothing loads from a CDN |
 | `prep.py` | how `images/` and `data.js` were made from the original PNGs |
 
@@ -24,9 +25,12 @@ Drop the folder into a repo, turn on GitHub Pages, send the link.
 
 **The order of the cards** — `SEQ` at the top of `app.js`.
 
-**How fast the handwriting goes** — `SPEED` in `app.js` (pixels of ink per
-second, measured on the original 1067px-wide card). `MIN_LINE` keeps short
-lines from snapping into place.
+**How fast the handwriting goes** — `PACE` at the top of `app.js`. Higher is
+slower; everything else (line duration, the pauses between lines) scales off
+it. `2.5` is an unhurried hand, `1` is brisk.
+
+**The vodka bottle that does the writing** — `.pen` in `style.css`: `width`
+sets its size relative to the card, the `rotate()` sets the lean.
 
 **The greeting** — the `<h1>` in `index.html`.
 
